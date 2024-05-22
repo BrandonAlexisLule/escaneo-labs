@@ -1,68 +1,105 @@
 'use client'
 import NavBar from "@/components/NavBar";
 import Header from "@/components/Header";
+import axios from "axios";
 import { useState, useEffect } from 'react'
-import axios from 'axios'
+
 
 const Home = () => {
-  const [abrirMenu, setAbrirMenu] = useState(true)
+    const [horaFecha, setHoraFecha] = useState(new Date())
+    const [abrirMenu, setAbrirMenu] = useState(true)
 
-  const handleMenu = ()=> {
-    setAbrirMenu(!abrirMenu)
-  }
+    {/**Lógica para mostrar data de las computadoras escaneadas desde la consola. */}
+    const [informacionRed, setInformacionRed] = useState({
+        ip: '', subnet: '', gateway: ''
+    })
+    const [error, setError] = useState(null)
 
-  const [ip, setIp] = useState('')
-  const [resultado, setResultado] = useState(null)
-
-  const handleEnviar = async (e) => {
-    e.preventDefault()
-    try {
-      //Realiza una solicitud http al servidor para escanear la dirección IP
-      const respuesta = await axios.get(`/scan?ip=${ip}`)
-      setResultado(respuesta.data)
-    } catch (error) {
-      console.log('Error', error)
+    useEffect(() => {
+      axios.get('http://localhost:3001/escanear-red')
+        .then(response => {
+          console.log(response.data)
+          setInformacionRed(response.data)
+        })
+        .catch(error => {
+          setError('No has ejecutado el servidor local. ', error)
+        })
+ 
+    }, [])
+    
+    const handleMenu = () => {
+        setAbrirMenu(!abrirMenu)
     }
 
-  }
+    useEffect(() => {
+      const intervalo = setInterval(() => {
+        setHoraFecha(new Date())
 
+      }, 1000)
+    
+      return () => clearInterval(intervalo)
+    }, [])
+
+    const saludando = (fecha) => {
+      const horas = fecha.getHours()
+      if(horas < 12){
+        return 'Bienvenido, buenos días.'
+      } else if (horas < 20){
+        return 'Bienvenido, buenas tardes.'
+      } else {
+        return 'Bienvenido, buenas noches'
+      }
+    }
+    
+    const formatoHora = (fecha) => {
+        const opciones = {weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'}
+        return `Ensenada Blanca, Baja California a ${fecha.toLocaleDateString('es-ES', opciones)}`
+    }
+  
+    const formatoFecha = (hora) => {
+        return `La hora es: ${hora.toLocaleTimeString()}`
+    }
 
   return (
-    <main className={`grid ${abrirMenu ? 'grid-cols-5 bg-[#fff6c0] ' : 'grid-cols-1 h-screen bg-[#fff6c0]'}`}>  
+    <main className={`grid ${abrirMenu ? 'grid-cols-5 bg-[#b5e2fa] ' : 'grid-cols-1 h-screen bg-[#b5e2fa]'}`}>  
         <div className="col-span-5">
           <Header handleMenu={handleMenu}/>
         </div>
 
         {/**Contenedor que envuelve al NavBar el cual aplica a toda la altura de la pantalla hasta topar con el header*/}
         {abrirMenu &&
-          <div className={`mt-[130px] col-span-1 h-screen overflow-y-auto bg-[#c9184a]`}>
+          <div className={`mt-[130px] col-span-1 h-screen overflow-y-auto bg-[#3c6e71]`}>
             <NavBar abrirMenu={abrirMenu}/>
           </div>
         }
 
-        {/**Este es el contenido que se muestra en la pestaña Inicio. */}
-        <div className={`${abrirMenu ? 'col-span-4' : 'col-span-1 mt-[-150px]'} mt-[120px]`}>
-          <div className="text-[25px] p-10">
-            <h1>Prueba de escaneo de IPS</h1>
-            <form action="" onSubmit={handleEnviar}>
-              <input 
-                type="text" 
-                placeholder="Ingrese la dirección IP" 
-                value={ip}
-                onChange={(e) => setIp(e.target.value)}/>
-                <button className="" type="submit">Escanear IPS</button>
-            </form>
-            {
-              resultado && (
-                <div>
-                  <p>Dirección IP: {resultado.ip}</p>
-                  <p>Conectado: {resultado.estaConectada ? 'Si' : 'No'}</p>
-                  <p>Máscara de red: {resultado.mascaraRed}</p>
+        {/**Este es el contenido que se muestra en la pestaña Inicio. 
+          El margin-bottom configura la alineación del texto cuando el navbar está cerrado.
+        */}
+        
+        <div className={`${abrirMenu ? 'col-span-4' : 'col-span-1 mb-[457px]'} mt-[120px]`}>
+          <div className="text-[25px] m-10">
+            <p>{saludando(horaFecha)}</p>
+            <div className="my-2 text-center p-8 text-[40px] bg-[#0077b6] rounded-md text-white font-bold">
+              <p>{formatoFecha(horaFecha)}</p>
+              <p>{formatoHora(horaFecha)}</p>
+            </div>
+            <div>
+              <h1 className="py-3">Datos de mi computadora:</h1>
+              {
+                error ? (
+                  <p>{error}</p>
+                ) : (
+                  <div>
+                    <p>Dirección IPv4: {informacionRed.ip}</p>
+                    <p>Máscara de red: {informacionRed.subnet}</p>
+                    <p>Puerta de enlace predeterminada: {informacionRed.gateway}</p>
 
-                </div>
+                  </div>
+                )
 
-              )     
-            }
+              }
+            </div>
           </div>
         </div>
 

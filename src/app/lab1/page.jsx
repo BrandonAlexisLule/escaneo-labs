@@ -53,13 +53,13 @@ const Laboratorio5 = () => {
 
         {/**Contenedor que envuelve al NavBar el cual aplxica a toda la altura de la pantalla */}
         {abrirMenu &&
-          <div className={`col-span-1 h-screen overflow-y-auto bg-[#c9184a]`}>
+          <div className={`col-span-1 h-screen overflow-y-auto bg-[#3c6e71]`}>
             <NavBar abrirMenu={abrirMenu}/>
           </div>
         }
 
         <div className={`${abrirMenu ? 'col-span-4' : 'col-span-1 '} bg-[#fff]`}>
-            <div className='m-10 p-3 text-center text-[30px] text-[#f5f3f4] font-extrabold rounded-lg bg-[#495057]'>Laboratorio de cómputo 01</div>
+            <div className='py-[100px] text-center text-[30px] text-[#353535] font-extrabold bg-[#ced4da]'>Laboratorio de cómputo 01</div>
         
             <div className='text-[20px] text-left my-6 px-10'>
                 <div className='p-4 bg-gray-300 rounded-lg font-bold text-[#495057]'>

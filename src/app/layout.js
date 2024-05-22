@@ -11,7 +11,7 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className="bg-[#c9184a]">
+    <html lang="en" className="bg-[#3c6e71]">
       <body className={hindSiliguriFont.className}>{children}</body>
     </html>
   );
